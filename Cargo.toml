@@ -1,0 +1,13 @@
+[package]
+name = "email-random-sig"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+osascript = "0.3.0"
+serde = "1"
+serde_json = "1"
+serde_derive = "1"
+chumsky = "0.9.2"
