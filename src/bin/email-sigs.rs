@@ -16,8 +16,8 @@
    filenames are parsed, quotes combined in order, but made unique
 */
 
-use email_random_sig::quotes_parser;
-use email_random_sig::signatures::{add_signatures, erase_all_signatures, Signature};
+use email_sigs::quotes_parser;
+use email_sigs::signatures::{add_signatures, erase_all_signatures, Signature};
 use indexmap::IndexSet;
 use std::error::Error;
 use std::ffi::OsString;

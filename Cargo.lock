@@ -42,7 +42,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "email_random_sig"
+name = "email_sigs"
 version = "0.1.0"
 dependencies = [
  "chumsky",
