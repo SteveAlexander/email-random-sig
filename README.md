@@ -1,6 +1,6 @@
 # email-sigs
 
-MacOS command linen app to maintain a collection of email signatures in the MacOS Mail application.
+MacOS command line app to maintain a collection of email signatures in the MacOS Mail application.
 
 Signatures are updated for all accounts, with a prefixed id.
 The default prefix is `<Autoquote >`, but this can be overridden.
