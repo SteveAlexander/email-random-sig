@@ -1,7 +1,7 @@
 use chumsky::prelude::*;
 
-fn parse(s: &str) -> Option<Vec<Quote>> {
-    match parser().parse(s) {
+pub fn parse(s: &str) -> Option<Vec<Quote>> {
+    match guessing_parser().parse(s) {
         Ok(result) if result.len() >= 2 => Some(result),
         Ok(_result) => {
             println!("File contained less than 2 quotes. Maybe it isn't a quotes file?");
@@ -14,21 +14,21 @@ fn parse(s: &str) -> Option<Vec<Quote>> {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Quote {
-    author: Option<String>,
-    text: String,
+    pub author: Option<String>,
+    pub text: String,
 }
 
 impl Quote {
-    fn new(author: &str, text: &str) -> Self {
+    pub fn new(author: &str, text: &str) -> Self {
         Quote {
             author: Some(author.trim().to_owned()),
             text: text.trim().to_owned(),
         }
     }
 
-    fn new_anonymous(text: &str) -> Self {
+    pub fn new_anonymous(text: &str) -> Self {
         Quote {
             author: None,
             text: text.trim().to_owned(),
@@ -42,7 +42,7 @@ mod thunderbird_parser {
 
     fn line_to_quote(line: String) -> Quote {
         let line = line.replace('\n', "").replace("<br>", "\n");
-        match line.rsplit_once('-') {
+        match line.rsplit_once("- ") {
             Some((text, author)) => Quote::new(author, text),
             None => Quote::new_anonymous(&line),
         }
@@ -93,7 +93,7 @@ mod mail_quotes_parser {
     }
 }
 
-pub fn parser() -> impl Parser<char, Vec<Quote>, Error = Simple<char>> {
+fn guessing_parser() -> impl Parser<char, Vec<Quote>, Error = Simple<char>> {
     mail_quotes_parser::parser().or(thunderbird_parser::parser())
 }
 

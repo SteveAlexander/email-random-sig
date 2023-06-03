@@ -30,9 +30,9 @@ struct Signatures {
 }
 
 #[derive(Deserialize, Debug)]
-struct AddSignatureResult {
-    #[serde(rename = "index_added")]
-    index_added: u32,
+struct U32Result {
+    #[serde(rename = "value")]
+    value: u32,
 }
 
 // #[derive(Deserialize, Debug)]
@@ -61,7 +61,7 @@ pub fn add_signatures(prefix: &str, signatures: Vec<Signature>) -> Result<(), Bo
             .map(|sig| sig.with_prefix(prefix))
             .collect(),
     };
-    println!("{params:?}");
+    // println!("{params:?}");
     script.execute_with_params(params)?;
     Ok(())
 }
@@ -75,34 +75,36 @@ pub fn add_signature(name: &str, content: &str) -> Result<u32, Box<dyn Error>> {
                 content: $params.content
             });
             var retval = app.signatures.push(sig);
-            return { index_added: retval }; // returns index of added sig
+            return { value: retval }; // returns index of added sig
     "###,
     );
     let params = Signature {
         name: name.into(),
         content: content.into(),
     };
-    let result: AddSignatureResult = script.execute_with_params(params)?;
-    Ok(result.index_added)
+    let result: U32Result = script.execute_with_params(params)?;
+    Ok(result.value)
 }
 
-pub fn erase_all_signatures(prefix: &str) -> Result<(), Box<dyn Error>> {
+pub fn erase_all_signatures(prefix: &str) -> Result<u32, Box<dyn Error>> {
     let script = JavaScript::new(
         r###"
             var app = Application('Mail');
             var signatures = app.signatures();
-            if (signatures !== null) {
-                signatures
-                    .filter(sig => sig.name().startsWith($params.prefix))
-                    .forEach(sig => sig.delete());
+            if (signatures === null) {
+                signatures = [];
             }
+            signaturesWithPrefix = signatures
+                    .filter(sig => sig.name().startsWith($params.prefix));
+            signaturesWithPrefix.forEach(sig => sig.delete());
+            return { value: signaturesWithPrefix.length }; // returns number erased
     "###,
     );
     let params = SignatureNamePrefix {
         prefix: prefix.into(),
     };
-    script.execute_with_params(params)?;
-    Ok(())
+    let result: U32Result = script.execute_with_params(params)?;
+    Ok(result.value)
 }
 
 pub fn add_fixed_signature() -> Result<(), Box<dyn Error>> {

@@ -1,7 +1,11 @@
 [package]
-name = "email-random-sig"
+name = "email_random_sig"
 version = "0.1.0"
 edition = "2021"
+[[bin]]
+name = "mail-sigs"
+test = false
+bench = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,3 +15,6 @@ serde = "1"
 serde_json = "1"
 serde_derive = "1"
 chumsky = "0.9.2"
+lexopt = "0.3.0"
+indexmap = "1.9.3"
+exit-code = "1.0.0"
