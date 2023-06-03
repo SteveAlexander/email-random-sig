@@ -1,7 +1,5 @@
 /*
     NEXT
-
-    - write to private project on github
     - make the quotes parser try both formats for any file offered, return vec of quotes
     - various small test cases for quotes parser
     - better naming for quotes parser implementations

@@ -1,3 +1,19 @@
+use chumsky::prelude::*;
+
+fn parse(s: &str) -> Option<Vec<Quote>> {
+    match parser().parse(s) {
+        Ok(result) if result.len() >= 2 => Some(result),
+        Ok(_result) => {
+            println!("File contained less than 2 quotes. Maybe it isn't a quotes file?");
+            None
+        }
+        Err(err) => {
+            println!("{err:?}");
+            None
+        }
+    }
+}
+
 #[derive(Debug, Eq, PartialEq)]
 pub struct Quote {
     author: Option<String>,
@@ -20,7 +36,7 @@ impl Quote {
     }
 }
 
-mod tb_parser {
+mod thunderbird_parser {
     use super::Quote;
     use chumsky::{prelude::*, text::newline};
 
@@ -46,7 +62,7 @@ mod tb_parser {
             .collect()
     }
 }
-mod quotes_parser {
+mod mail_quotes_parser {
     use super::Quote;
     use chumsky::{prelude::*, text::newline};
 
@@ -77,16 +93,100 @@ mod quotes_parser {
     }
 }
 
+pub fn parser() -> impl Parser<char, Vec<Quote>, Error = Simple<char>> {
+    mail_quotes_parser::parser().or(thunderbird_parser::parser())
+}
+
 #[test]
-fn header_test() {
-    use chumsky::prelude::*;
-    use std::str::from_utf8;
+fn test_parse_thunderbird_quotes() {
+    let text = "\
+        Some quote. - A. N. Other\
+        \n%\n\
+        Another quote.- Author Name\
+        \n%\n\
+        Quote3.-Different Name\
+        \n%\n\
+        Multiline quote<br>\n\
+        is a quote on many lines - Some Author\
+        \n%\n\
+        Some quote without an author\
+    ";
+    assert_eq!(
+        thunderbird_parser::parser().parse(text),
+        Ok(vec![
+            Quote::new("A. N. Other", "Some quote."),
+            Quote::new("Author Name", "Another quote."),
+            Quote::new("Different Name", "Quote3."),
+            Quote::new("Some Author", "Multiline quote\nis a quote on many lines"),
+            Quote::new_anonymous("Some quote without an author"),
+        ])
+    );
+}
 
-    let quotes = include_bytes!("../Quotes.txt");
-    let tbquotes = include_bytes!("../TBQuotes.txt");
-    let tbq = from_utf8(tbquotes).unwrap();
-    println!("{:#?}", tb_parser::parser().parse(tbq));
+#[test]
+fn test_parse_mail_quotes() {
+    let text = "\
+        Some quote.:A. N. Other:\
+        \n\n\
+        Another quote. :Author Name:\
+        \n\n\
+        Quote3.:Different Name:\
+        \n\n\
+        [This is a multiline\nquote :Some Name:]\
+        \n\n\
+        [Multiline quote\nWithout an author]\
+        \n\n\
+        Regular quote without an author\
+    ";
+    assert_eq!(
+        mail_quotes_parser::parser().parse(text),
+        Ok(vec![
+            Quote::new("A. N. Other", "Some quote."),
+            Quote::new("Author Name", "Another quote."),
+            Quote::new("Different Name", "Quote3."),
+            Quote::new("Some Name", "This is a multiline\nquote"),
+            Quote::new_anonymous("Multiline quote\nWithout an author"),
+            Quote::new_anonymous("Regular quote without an author"),
+        ])
+    );
+}
 
-    let q = from_utf8(quotes).unwrap();
-    println!("{:#?}", quotes_parser::parser().parse(q));
+#[test]
+fn test_guess_file_type_thunderbird() {
+    let text = "\
+    Some quote. - A. N. Other\
+    \n%\n\
+    Another quote.- Author Name\
+    ";
+    assert_eq!(
+        parse(text),
+        Some(vec![
+            Quote::new("A. N. Other", "Some quote."),
+            Quote::new("Author Name", "Another quote."),
+        ])
+    );
+}
+
+#[test]
+fn test_guess_file_type_mail_quotes() {
+    let text = "\
+    Some quote.:A. N. Other:\
+    \n\n\
+    Another quote. :Author Name:\
+    ";
+    assert_eq!(
+        parse(text),
+        Some(vec![
+            Quote::new("A. N. Other", "Some quote."),
+            Quote::new("Author Name", "Another quote."),
+        ])
+    );
+}
+
+#[test]
+fn test_guess_file_type_unidentified() {
+    let text = "\
+    Random text here\
+    ";
+    assert_eq!(parse(text), None);
 }

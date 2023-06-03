@@ -1,7 +1,6 @@
-use std::error::Error;
-
 use osascript::JavaScript;
-use serde_derive::{self, Deserialize, Serialize};
+use serde_derive::{Deserialize, Serialize};
+use std::error::Error;
 
 #[derive(Serialize, Debug)]
 pub struct Signature {
@@ -41,8 +40,6 @@ struct AddSignatureResult {
 //     #[serde(rename = "data")]
 //     data: String
 // }
-
-
 
 #[derive(Serialize, Debug)]
 struct SignatureNamePrefix {
