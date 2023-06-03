@@ -81,18 +81,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     if args.help {
         println!(
-r#"mail-sigs: Update Mail.app email signatures
+r#"email_sigs: Update Mail.app email signatures
 
 Signatures are updated for all accounts, with a prefixed id.
 The default prefix is <{}>, but this can be overridden.
 
 Usage:
-  mail-sigs -h | --help
-  mail-sigs --prefix "custom prefix "
-  mail-sigs FILENAME1 FILENAME2 FILENAME3
-  mail-sigs --prefix "custom prefix " FILENAME1 FILENAME2 FILENAME3
-  mail-sigs --erase-all  # erases signatures with default prefix 
-  mail-sigs --prefix "custom prefix " --erase-all
+  email_sigs -h | --help
+  email_sigs --prefix "custom prefix "
+  email_sigs FILENAME1 FILENAME2 FILENAME3
+  email_sigs --prefix "custom prefix " FILENAME1 FILENAME2 FILENAME3
+  email_sigs --erase-all  # erases signatures with default prefix 
+  email_sigs --prefix "custom prefix " --erase-all
 "#,
             default_prefix()
         );

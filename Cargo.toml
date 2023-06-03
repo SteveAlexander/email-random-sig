@@ -3,7 +3,8 @@ name = "email_sigs"
 version = "0.1.0"
 edition = "2021"
 [[bin]]
-name = "email-sigs"
+name = "email_sigs"
+path = "src/bin/email_sigs.rs"
 test = false
 bench = false
 
